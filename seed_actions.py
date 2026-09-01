@@ -1,7 +1,7 @@
 """Seed 50 test actions with realistic governance data."""
 import random
 from datetime import date, timedelta
-from models.db import get_db
+from models.db import get_db, query_db
 from models.action import create_action
 
 ACTIONS = [
@@ -71,8 +71,10 @@ def seed_actions():
     random.seed(42)
     today = date.today()
 
-    user_ids = [1, 2]
-    committee_ids = [1, 2, 3, 4]
+    existing_users = query_db(db, "SELECT id FROM users WHERE is_active = 1")
+    user_ids = [r['id'] for r in existing_users] if existing_users else [1]
+    existing_committees = query_db(db, "SELECT id FROM config_committees WHERE is_active = 1")
+    committee_ids = [r['id'] for r in existing_committees] if existing_committees else [1]
 
     for i, (title, desc, category_id, dept_id) in enumerate(ACTIONS):
         # Date raised: spread over last 6 months
@@ -103,15 +105,7 @@ def seed_actions():
         else:
             status_id = random.choices([1, 2, 3, 4], weights=[0.2, 0.35, 0.3, 0.15], k=1)[0]
 
-        # Source committee based on category
-        if category_id == 2:  # Internal Audit
-            source_committee_id = 4  # Audit Committee
-        elif category_id == 3:  # Regulator
-            source_committee_id = random.choice([1, 3])  # Board Risk or Board
-        else:
-            source_committee_id = random.choice(committee_ids)
-
-        # Reporting committee
+        source_committee_id = random.choice(committee_ids)
         reporting_committee_id = random.choice(committee_ids)
 
         owner_id = random.choice(user_ids)
