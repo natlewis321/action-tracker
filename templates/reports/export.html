@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Reports — Action Tracker{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Reports & Export</h1>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2>Export Actions</h2>
+    </div>
+    <p class="text-muted mb-16">Filter actions then export as CSV or PDF. Leave filters blank to export all.</p>
+
+    <form id="exportForm" class="filters" style="flex-wrap:wrap;">
+        <div class="form-group">
+            <label>Category</label>
+            <select name="category_id">
+                <option value="">All</option>
+                {% for c in categories %}
+                <option value="{{ c.id }}">{{ c.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Status</label>
+            <select name="status_id">
+                <option value="">All</option>
+                {% for s in statuses %}
+                <option value="{{ s.id }}">{{ s.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Committee</label>
+            <select name="committee_id">
+                <option value="">All</option>
+                {% for c in committees %}
+                <option value="{{ c.id }}">{{ c.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Department</label>
+            <select name="department_id">
+                <option value="">All</option>
+                {% for d in departments %}
+                <option value="{{ d.id }}">{{ d.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Owner</label>
+            <select name="owner_id">
+                <option value="">All</option>
+                {% for u in users %}
+                <option value="{{ u.id }}">{{ u.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Exec Sponsor</label>
+            <select name="exec_sponsor_id">
+                <option value="">All</option>
+                {% for u in users %}
+                <option value="{{ u.id }}">{{ u.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>&nbsp;</label>
+            <label><input type="checkbox" name="overdue" value="1"> Overdue only</label>
+        </div>
+    </form>
+
+    <div class="btn-group mt-16">
+        <button class="btn btn-primary" onclick="exportAs('csv')">Export CSV</button>
+        <button class="btn btn-primary" onclick="exportAs('pdf')">Export PDF</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function exportAs(format) {
+    var form = document.getElementById('exportForm');
+    var params = new URLSearchParams(new FormData(form));
+    // Remove empty params
+    var clean = new URLSearchParams();
+    params.forEach(function(v, k) { if (v) clean.set(k, v); });
+    window.location.href = '/reports/' + format + '?' + clean.toString();
+}
+</script>
+{% endblock %}

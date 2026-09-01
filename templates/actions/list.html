@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Actions — Action Tracker{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Actions</h1>
+    <div class="btn-group">
+        {% if g.user['role'] != 'Viewer' %}
+        <a href="{{ url_for('actions.new_action') }}" class="btn btn-primary">+ New Action</a>
+        {% endif %}
+        {% if g.user['role'] == 'Admin' %}
+        <a href="{{ url_for('actions.import_csv') }}" class="btn btn-outline">Import CSV</a>
+        {% endif %}
+    </div>
+</div>
+
+<form method="get" class="filters">
+    <div class="form-group">
+        <label>Search</label>
+        <input type="text" name="search" value="{{ filters.get('search', '') }}" placeholder="Title or description...">
+    </div>
+    <div class="form-group">
+        <label>Category</label>
+        <select name="category_id">
+            <option value="">All</option>
+            {% for c in categories %}
+            <option value="{{ c.id }}" {% if filters.get('category_id') == c.id|string %}selected{% endif %}>{{ c.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-group">
+        <label>Status</label>
+        <select name="status_id">
+            <option value="">All</option>
+            {% for s in statuses %}
+            <option value="{{ s.id }}" {% if filters.get('status_id') == s.id|string %}selected{% endif %}>{{ s.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-group">
+        <label>Owner</label>
+        <select name="owner_id">
+            <option value="">All</option>
+            {% for u in users %}
+            <option value="{{ u.id }}" {% if filters.get('owner_id') == u.id|string %}selected{% endif %}>{{ u.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-group">
+        <label>Committee</label>
+        <select name="committee_id">
+            <option value="">All</option>
+            {% for c in committees %}
+            <option value="{{ c.id }}" {% if filters.get('committee_id') == c.id|string %}selected{% endif %}>{{ c.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-group">
+        <label>&nbsp;</label>
+        <label><input type="checkbox" name="overdue" value="1" {% if filters.get('overdue') %}checked{% endif %}> Overdue only</label>
+    </div>
+    <div class="form-group">
+        <label>&nbsp;</label>
+        <button type="submit" class="btn btn-outline btn-sm">Filter</button>
+        <a href="{{ url_for('actions.list_actions') }}" class="btn btn-outline btn-sm">Clear</a>
+    </div>
+</form>
+
+<div class="table-wrap">
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Category</th>
+            <th>Status</th>
+            <th>Priority</th>
+            <th>Owner</th>
+            <th>Due Date</th>
+            <th>Raised</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for a in actions %}
+        <tr>
+            <td>{{ a.id }}</td>
+            <td><a href="{{ url_for('actions.detail', action_id=a.id) }}">{{ a.title }}</a></td>
+            <td>{{ a.category_name }}</td>
+            <td><span class="badge badge-{{ a.status_name|lower|replace(' ', '') }}">{{ a.status_name }}</span></td>
+            <td><span class="badge badge-{{ a.priority|lower }}">{{ a.priority }}</span></td>
+            <td>{{ a.owner_name or '—' }}</td>
+            <td class="{% if a.due_date and a.due_date < today and a.status_name not in ('Completed','Closed') %}overdue{% endif %}">
+                {{ a.due_date or '—' }}
+            </td>
+            <td>{{ a.date_raised }}</td>
+        </tr>
+    {% else %}
+        <tr><td colspan="8" class="text-muted" style="text-align:center;padding:24px;">No actions found.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+</div>
+{% endblock %}

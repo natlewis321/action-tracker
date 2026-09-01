@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — Action Tracker{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Dashboard</h1>
+</div>
+
+<form method="get" class="filters" id="dashFilters">
+    <div class="form-group">
+        <label>Committee</label>
+        <select name="committee_id" onchange="this.form.submit()">
+            <option value="">All Committees</option>
+            {% for c in committees %}
+            <option value="{{ c.id }}" {% if selected_committee|string == c.id|string %}selected{% endif %}>{{ c.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-group">
+        <label>Department</label>
+        <select name="department_id" onchange="this.form.submit()">
+            <option value="">All Departments</option>
+            {% for d in departments %}
+            <option value="{{ d.id }}" {% if selected_department|string == d.id|string %}selected{% endif %}>{{ d.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-group">
+        <label>&nbsp;</label>
+        {% if selected_committee or selected_department %}
+        <a href="{{ url_for('dashboard.index') }}" class="btn btn-outline btn-sm">Clear filters</a>
+        {% endif %}
+    </div>
+</form>
+
+<div class="stats-row">
+    <div class="stat-card">
+        <div class="stat-value">{{ total }}</div>
+        <div class="stat-label">Total Actions</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ open_count }}</div>
+        <div class="stat-label">Open</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ closed_count }}</div>
+        <div class="stat-label">Closed / Completed</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value" style="color:var(--danger)">{{ overdue }}</div>
+        <div class="stat-label">Overdue</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value" style="color:var(--warning)">{{ due_soon }}</div>
+        <div class="stat-label">Due Within 14 Days</div>
+    </div>
+</div>
+
+<div class="chart-grid">
+    <div class="chart-card">
+        <h3>Actions by Status</h3>
+        <canvas id="chartStatus" height="200"></canvas>
+    </div>
+    <div class="chart-card">
+        <h3>Actions by Category</h3>
+        <canvas id="chartCategory" height="200"></canvas>
+    </div>
+    <div class="chart-card">
+        <h3>Actions by Priority</h3>
+        <canvas id="chartPriority" height="200"></canvas>
+    </div>
+    <div class="chart-card">
+        <h3>Open Actions Ageing</h3>
+        <canvas id="chartAgeing" height="200"></canvas>
+    </div>
+    <div class="chart-card">
+        <h3>Actions by Committee</h3>
+        <canvas id="chartCommittee" height="200"></canvas>
+    </div>
+    <div class="chart-card">
+        <h3>Overdue by Owner</h3>
+        <canvas id="chartOverdueOwner" height="200"></canvas>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+{% endblock %}

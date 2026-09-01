@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Users — Admin{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Users</h1>
+    <div class="btn-group">
+        <a href="{{ url_for('admin.user_new') }}" class="btn btn-primary btn-sm">+ New User</a>
+        <a href="{{ url_for('admin.config_list') }}" class="btn btn-outline btn-sm">Configuration</a>
+    </div>
+</div>
+
+<div class="table-wrap">
+<table>
+    <thead>
+        <tr><th>Name</th><th>Email</th><th>Role</th><th>Department</th><th>Active</th><th></th></tr>
+    </thead>
+    <tbody>
+    {% for u in users %}
+    <tr>
+        <td>{{ u.name }}</td>
+        <td>{{ u.email }}</td>
+        <td>{{ u.role }}</td>
+        <td>{{ u.department or '—' }}</td>
+        <td>{{ 'Yes' if u.is_active else 'No' }}</td>
+        <td><a href="{{ url_for('admin.user_edit', user_id=u.id) }}" class="btn btn-outline btn-sm">Edit</a></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+</div>
+{% endblock %}

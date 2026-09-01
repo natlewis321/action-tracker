@@ -1,0 +1,5 @@
+action_tracker.db
+.secret_key
+__pycache__/
+*.pyc
+.claude/

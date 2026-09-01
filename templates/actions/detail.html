@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block title %}{{ action.title }} — Action Tracker{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>#{{ action.id }} — {{ action.title }}</h1>
+    <div class="btn-group">
+        {% if can_edit %}
+        <a href="{{ url_for('actions.edit', action_id=action.id) }}" class="btn btn-primary btn-sm">Edit</a>
+        {% endif %}
+        <a href="{{ url_for('actions.list_actions') }}" class="btn btn-outline btn-sm">Back to list</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="detail-grid">
+        <div>
+            <div class="detail-label">Status</div>
+            <div class="detail-value"><span class="badge badge-{{ action.status_name|lower|replace(' ', '') }}">{{ action.status_name }}</span></div>
+        </div>
+        <div>
+            <div class="detail-label">Priority</div>
+            <div class="detail-value"><span class="badge badge-{{ action.priority|lower }}">{{ action.priority }}</span></div>
+        </div>
+        <div>
+            <div class="detail-label">Category</div>
+            <div class="detail-value">{{ action.category_name }}</div>
+        </div>
+        <div>
+            <div class="detail-label">Department</div>
+            <div class="detail-value">{{ action.department_name or '—' }}</div>
+        </div>
+        <div>
+            <div class="detail-label">Source Committee</div>
+            <div class="detail-value">{{ action.source_committee_name or '—' }}</div>
+        </div>
+        <div>
+            <div class="detail-label">Reporting Committee</div>
+            <div class="detail-value">{{ action.reporting_committee_name or '—' }}</div>
+        </div>
+        <div>
+            <div class="detail-label">Owner</div>
+            <div class="detail-value">{{ action.owner_name or '—' }}</div>
+        </div>
+        <div>
+            <div class="detail-label">Executive Sponsor</div>
+            <div class="detail-value">{{ action.exec_sponsor_name or '—' }}</div>
+        </div>
+        <div>
+            <div class="detail-label">Date Raised</div>
+            <div class="detail-value">{{ action.date_raised }}</div>
+        </div>
+        <div>
+            <div class="detail-label">Due Date</div>
+            <div class="detail-value {% if action.due_date and action.due_date < today and action.status_name not in ('Completed','Closed') %}overdue{% endif %}">
+                {{ action.due_date or '—' }}
+            </div>
+        </div>
+        <div>
+            <div class="detail-label">Created By</div>
+            <div class="detail-value">{{ action.created_by_name }} on {{ action.created_at[:10] }}</div>
+        </div>
+        <div>
+            <div class="detail-label">Last Updated</div>
+            <div class="detail-value">{{ action.updated_at }}</div>
+        </div>
+    </div>
+
+    {% if action.description %}
+    <div class="mt-16">
+        <div class="detail-label">Description</div>
+        <div class="detail-value">{{ action.description }}</div>
+    </div>
+    {% endif %}
+
+    {% if action.closure_evidence %}
+    <div class="mt-16">
+        <div class="detail-label">Closure Evidence</div>
+        <div class="detail-value">{{ action.closure_evidence }}</div>
+    </div>
+    {% endif %}
+
+    {% if action.closed_at %}
+    <div class="mt-16">
+        <div class="detail-label">Closed</div>
+        <div class="detail-value">By {{ action.closed_by_name }} on {{ action.closed_at }}</div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Comments -->
+<div class="card mt-24">
+    <div class="card-header">
+        <h2>Updates & Comments ({{ comments|length }})</h2>
+    </div>
+    {% for c in comments %}
+    <div class="comment">
+        <div class="comment-meta">{{ c.user_name }} — {{ c.created_at }}</div>
+        <div>{{ c.body }}</div>
+    </div>
+    {% else %}
+    <p class="text-muted">No comments yet.</p>
+    {% endfor %}
+
+    {% if g.user['role'] != 'Viewer' %}
+    <form method="post" action="{{ url_for('actions.comment', action_id=action.id) }}" class="mt-16">
+        <div class="form-group">
+            <textarea name="body" placeholder="Add a comment or update..." required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-sm">Add Comment</button>
+    </form>
+    {% endif %}
+</div>
+
+<!-- Audit Trail -->
+<div class="card mt-24">
+    <div class="card-header">
+        <h2>Audit Trail</h2>
+    </div>
+    <div class="table-wrap">
+    <table>
+        <thead>
+            <tr><th>When</th><th>Who</th><th>Field</th><th>From</th><th>To</th></tr>
+        </thead>
+        <tbody>
+        {% for a in audit %}
+        <tr>
+            <td>{{ a.changed_at }}</td>
+            <td>{{ a.user_name }}</td>
+            <td>{{ a.field_name }}</td>
+            <td>{{ a.old_value or '—' }}</td>
+            <td>{{ a.new_value or '—' }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>
+{% endblock %}

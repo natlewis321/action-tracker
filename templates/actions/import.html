@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Import Actions — Action Tracker{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Import Actions from CSV</h1>
+    <a href="{{ url_for('actions.list_actions') }}" class="btn btn-outline btn-sm">Cancel</a>
+</div>
+
+<div class="card">
+    <p class="mb-16">Upload a CSV file with the following columns:</p>
+    <p class="text-muted mb-16" style="font-size:12px;">
+        <code>title</code>, <code>description</code>, <code>category</code>, <code>status</code>,
+        <code>source_committee</code>, <code>reporting_committee</code>, <code>department</code>,
+        <code>date_raised</code> (YYYY-MM-DD), <code>due_date</code> (YYYY-MM-DD),
+        <code>priority</code> (Critical/High/Medium/Low),
+        <code>owner_email</code>, <code>exec_sponsor_email</code>
+    </p>
+    <p class="text-muted mb-16" style="font-size:12px;">
+        Category and status values must match existing config entries (case-insensitive).
+        Owner/sponsor are matched by email address.
+    </p>
+    <form method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="file">CSV File</label>
+            <input type="file" id="file" name="file" accept=".csv" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Import</button>
+    </form>
+</div>
+{% endblock %}

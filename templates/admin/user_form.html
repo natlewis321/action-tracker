@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if user else 'New' }} User — Admin{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>{{ 'Edit User' if user else 'New User' }}</h1>
+    <a href="{{ url_for('admin.users_list') }}" class="btn btn-outline btn-sm">Cancel</a>
+</div>
+
+<div class="card">
+<form method="post">
+    <div class="form-row">
+        <div class="form-group">
+            <label for="name">Name *</label>
+            <input type="text" id="name" name="name" value="{{ user.name if user else '' }}" required>
+        </div>
+        <div class="form-group">
+            <label for="email">Email *</label>
+            <input type="email" id="email" name="email" value="{{ user.email if user else '' }}" required>
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            <label for="role">Role</label>
+            <select id="role" name="role">
+                {% for r in ['Admin','Exec','Owner','Viewer'] %}
+                <option value="{{ r }}" {% if user and user.role == r %}selected{% endif %}>{{ r }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="department">Department</label>
+            <input type="text" id="department" name="department" value="{{ user.department if user and user.department else '' }}">
+        </div>
+    </div>
+
+    {% if user %}
+    <div class="form-row">
+        <div class="form-group">
+            <label for="new_password">New Password (leave blank to keep current)</label>
+            <input type="password" id="new_password" name="new_password">
+        </div>
+        <div class="form-group">
+            <label>&nbsp;</label>
+            <label><input type="checkbox" name="is_active" value="1" {% if user.is_active %}checked{% endif %}> Active</label>
+        </div>
+    </div>
+    {% else %}
+    <div class="form-group">
+        <label for="password">Password *</label>
+        <input type="password" id="password" name="password" required>
+    </div>
+    {% endif %}
+
+    <div class="mt-16">
+        <button type="submit" class="btn btn-primary">{{ 'Save Changes' if user else 'Create User' }}</button>
+    </div>
+</form>
+</div>
+{% endblock %}
