@@ -71,10 +71,21 @@ def seed_actions():
     random.seed(42)
     today = date.today()
 
+    # Ensure committees and departments exist
+    default_committees = ['Board Risk Committee', 'ALCO', 'Board', 'Audit Committee']
+    for name in default_committees:
+        db.execute("INSERT OR IGNORE INTO config_committees (name) VALUES (?)", (name,))
+    default_departments = ['Finance', 'Risk & Compliance', 'Underwriting', 'IT']
+    for name in default_departments:
+        db.execute("INSERT OR IGNORE INTO config_departments (name) VALUES (?)", (name,))
+    db.commit()
+
     existing_users = query_db(db, "SELECT id FROM users WHERE is_active = 1")
     user_ids = [r['id'] for r in existing_users] if existing_users else [1]
     existing_committees = query_db(db, "SELECT id FROM config_committees WHERE is_active = 1")
-    committee_ids = [r['id'] for r in existing_committees] if existing_committees else [1]
+    committee_ids = [r['id'] for r in existing_committees]
+    existing_depts = query_db(db, "SELECT id FROM config_departments WHERE is_active = 1")
+    dept_ids = [r['id'] for r in existing_depts]
 
     for i, (title, desc, category_id, dept_id) in enumerate(ACTIONS):
         # Date raised: spread over last 6 months
@@ -117,7 +128,7 @@ def seed_actions():
             'category_id': category_id,
             'source_committee_id': source_committee_id,
             'reporting_committee_id': reporting_committee_id,
-            'department_id': dept_id,
+            'department_id': dept_ids[(dept_id - 1) % len(dept_ids)] if dept_ids else None,
             'date_raised': date_raised.isoformat(),
             'due_date': due_date.isoformat(),
             'priority': priority,
